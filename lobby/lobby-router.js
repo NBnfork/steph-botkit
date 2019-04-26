@@ -1,40 +1,42 @@
 const lobby = require('./lobby-model');
-const express = require('express'); //using get/post here..
-const router = new express.Router();
+// const router = new express.Router();
 
 //Gets all lobby
-const getlobbies = async () =>{  
+const getlobbies = async () => {
 	try {
-        const alllobbys = await lobby.find({});
+		const alllobbys = await lobby.find({});
 		return alllobbys;
-	} catch(e) {
+	} catch (e) {
 		// statements
 		return e;
-	}	
+	}
 }
 
 //Gets a lobby
-const getOnelobby = async (id) =>{
-    try {
-        const lobby = await lobby.findById(req.params.uID);
-        return lobby;
-	} catch(e) {
+const getOnelobby = async (id) => {
+	try {
+		const lobby = await lobby.findById(id);
+		return lobby;
+	} catch (e) {
 		return e;
-	}	
+	}
 }
 
 // //Makes a new lobby
 // router.post('/', async (req, res)=>{
 
 // 	console.log("lobby router: POST request - \n", req.body);
-const createLobby = async ( data )=>{
+const createLobby = async (data) => {
 	try {
+		//find lobby by name..
+		//if exist
+		//return a complaint
 		const newlobby = new lobby(data);
 		await newlobby.save(); //Don't save till the lobby is created
-		
+
 		console.log(`New lobby [ ${newlobby.lobbyName} ]  is saved to database`);
 		return newlobby;
-	} catch(e) {	//Something bad happened.
+	} catch (e) {	//Something bad happened.
 		return e;
 	}
 }
@@ -64,19 +66,21 @@ const createLobby = async ( data )=>{
 
 // });
 
-// router.delete('/:uID', async (req, res)=>{
-// 	try {
-// 		const lobby = await lobby.findByIdAndDelete(req.params.uID);
-// 		res.send(lobby);
-// 	} catch(e) {
-// 		// statements
-// 		console.log(e);
-// 		res.status(500).send();
-// 	}
-// });
+
+const deleteLobby = async (id) => {
+	try {
+		const lobby = await lobby.findByIdAndDelete(id);
+		return lobby;
+	} catch (e) {
+		// statements
+		console.log(e);
+		return e;
+	}
+}
 
 module.exports = {
-    getlobbies,
+	getlobbies,
 	getOnelobby,
-	createLobby
+	createLobby,
+	deleteLobby
 };

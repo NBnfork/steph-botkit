@@ -1,68 +1,74 @@
 const Botkit = require('botkit');
+
 const {
     getlobbies,
     getOnelobby,
     createLobby
 } = require('./lobby/lobby-router');
 
+
 if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET || !process.env.PORT || !process.env.VERIFICATION_TOKEN) {
     console.log('Error: Specify CLIENT_ID, CLIENT_SECRET, VERIFICATION_TOKEN and PORT in environment');
     process.exit(1);
-  } else {
+} else {
     console.log('Good job, you have the variables!')
-  }
+}
 
 
-  const mongodbStorage = require('./phe-storage-mongoose/index.js')({
-      mongoUri: process.env.MONGODB,
-  });
+const mongodbStorage = require('./phe-storage-mongoose/index.js')({
+    mongoUri: process.env.MONGODB,
+});
 
 
-  const controller = Botkit.slackbot({
+const controller = Botkit.slackbot({
     storage: mongodbStorage,
     debug: true,
     clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,
-   });
+});
 
 
-   controller.configureSlackApp({
+controller.configureSlackApp({
     clientId: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,
+    // clientSigningSecret: process.env.CLIENT_SIGNING_SECRET,
     scopes: ['commands', 'bot', 'incoming-webhook'],
-   });
+});
 
-   const bot = controller.spawn({
+const bot = controller.spawn({
     token: process.env.BOT_TOKEN,
     incoming_webhook: {
-      url: 'https://hooks.slack.com/services/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'
+        url: process.env.SLACK_WEBHOOK
     }
-  }).startRTM();
+}).startRTM();
 
-  controller.setupWebserver(process.env.PORT, function(err, webserver){
+controller.setupWebserver(process.env.PORT, function (err, webserver) {
     controller.createWebhookEndpoints(controller.webserver);
-    controller.createOauthEndpoints(controller.webserver, 
-      function(err, req, res) {
-        if (err) {
-          res.status(500).send('ERROR: ' + err);
-        } else {
-          res.send('Success!');
-        }
-      });
-   });
+    controller.createOauthEndpoints(controller.webserver,
+        function (err, req, res) {
+            if (err) {
+                res.status(500).send('ERROR: ' + err);
+            } else {
+                res.send('Success!');
+            }
+        });
+});
 
 
-   //When user types 'hi', bot says 'Hello'.
-   controller.hears('hi', 'direct_message', function(bot, message) {
+//When user types 'hi', bot says 'Hello'.
+controller.hears('hi', 'direct_message', function (bot, message) {
     bot.reply(message, 'Hello.');
-   });
+});
 
-   //All slash command responses. TO DO: we probably should cut this and throw it into a separate folder for
-   //tidiness.
-   controller.on('slash_command', async (bot, message)=>{
-       bot.replyAcknowledge();
-        //TO DO: Put json objects to separate file for tidiness
-       const showdown = [
+controller.hears('I am hungry', 'direct_message', (bot, message) => {
+    bot.reply(message, 'Haha no food for you!');
+})
+
+//All slash command responses. TO DO: we probably should cut this and throw it into a separate folder for
+//tidiness.
+controller.on('slash_command', async (bot, message) => {
+    bot.replyAcknowledge();
+    //TO DO: Put json objects to separate file for tidiness
+    const showdown = [
         {
             "type": "section",
             "text": {
@@ -110,54 +116,60 @@ if (!process.env.CLIENT_ID || !process.env.CLIENT_SECRET || !process.env.PORT ||
                 "emoji": true
             }
         }
-    ]; 
-        
-        //Separate bot2 is needed to respond to all slash commands!
-        //I'm not sure why either, but without it bot doesnt send messages back.
-        const bot2 = controller.spawn({
-            token: process.env.BOT_TOKEN,
-            incoming_webhook: {
+    ];
+
+    //Separate bot2 is needed to respond to all slash commands!
+    //I'm not sure why either, but without it bot doesnt send messages back.
+    const bot2 = controller.spawn({
+        token: process.env.BOT_TOKEN,
+        incoming_webhook: {
             url: process.env.SLACK_WEBHOOK
-            }
-        });
+        }
+    });
 
-       switch(message.command) {
-            case '/talk':
-                bot.reply(message, 'Sup. Slash commands are now working.');
-                break;
-            case '/results':
-                bot.reply(message, showdown);
-                bot2.sendWebhook({
-                    blocks: showdown,
-                    channel: '#stephanie-sandbox',
-                },function(err,res) {
-                    if (err) {
+    switch (message.command) {
+        case '/talk':
+            bot.reply(message, 'Sup. Slash commands are now working.');
+            break;
+        case '/results':
+            //bot.reply(message, showdown);
+            bot2.sendWebhook({
+                blocks: showdown,
+                channel: 'CHBAGGM4Y',
+            }, function (err, res) {
+                if (err) {
                     console.log(err);
-                    }
-                });
-                break;
+                }
+            });
+            break;
 
-            case '/get-lobby':
-                const all_lobbies = await getlobbies();
-                console.log(all_lobbies);
-                    if(all_lobbies.length === 0){
-                        bot2.reply(message, 'There are no available lobbies recorded in database.');
-                    }
+        case '/get-lobby':
+            const all_lobbies = await getlobbies();
+            console.log(all_lobbies);
+            if (all_lobbies.length === 0) {
+                bot2.reply(message, 'There are no available lobbies recorded in database.');
+            }
+            else {
+                bot2.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?`);
                 //TO DO - handle if lobby pops up...
-                break;
+                //TO DO - replace "reply" with the conversation methods.
+            }
+            break;
 
-            case '/lobby':
-                //makes new lobby!
-                const newlobby = await createLobby({
-                    //TO DO - need the slash command to handle lobby names instead of hard coding!
-                    name : 'test name',
-                });
+        case '/lobby':
+            //makes new lobby!
 
-                console.log(newlobby);
-                bot2.reply(message, `New lobby [${newlobby.name}] created! Currently has [${newlobby.currentPlayers}] players...`);
-                break;
-            default:
-                bot.reply(message, 'What command is that');
-       }
-   })
+            const newlobby = await createLobby({
+                //TO DO - need the slash command to handle lobby names instead of hard coding!
+                name: message.text,
+            });
+
+            console.log(newlobby);
+            bot2.reply(message, `New lobby [${newlobby.name}] created! Currently has [${newlobby.currentPlayers}] players...`);
+            break;
+
+        default:
+            bot.reply(message, 'What command is that');
+    }
+})
 
