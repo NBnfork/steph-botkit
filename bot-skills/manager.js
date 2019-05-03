@@ -24,7 +24,21 @@ const registerLobby = async (lobby_name, buyin) => {
     // return lobby
 }
 
+const getLobbyPlayers = async (lobby_name) => {
+
+    // return {num_players: int, player_list: [players array]};
+}
+
+
 const playerJoinLobby = async () => {
+    // check if player exist
+    // check if player is already in lobby
+    // check if player bank >= buyin
+    // check if lobby exist
+    // check if lobby curr player < max players
+
+    // checkin player to lobby
+
 
 }
 
