@@ -25,6 +25,9 @@ const handleSlash = async (bot, message) => {
         case '/talk':
 
             bot.reply(message, 'Sup. Slash commands are now working.');
+            console.log('\n-------------------------------------------------------\n');
+            console.log(message);
+            console.log('\n-------------------------------------------------------\n');
             break;
 
         /*
@@ -49,12 +52,17 @@ const handleSlash = async (bot, message) => {
 
             const all_lobbies = await getlobbies();
             if (all_lobbies.length === 0) {
+                // There is no lobby
                 bot.reply(message, 'There are no available lobbies recorded in database.');
             }
             else {
+                // There are some lobbies
                 bot.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?`);
-                //TO DO - handle if lobby pops up...
-                //TO DO - replace "reply" with the conversation methods.
+                // ...............................
+                // todo : 						..
+                // start a conversation			..
+                // make decisions				..
+                // ...............................
             }
             break;
 

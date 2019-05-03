@@ -19,6 +19,14 @@
 			> minBet : int | minimum bet amount = big blind = (Buy-in / 25) 
 		- refer to lobby/lobby-model.js
 
+	Exports:
+		- getlobbies
+		- getOneLobby
+		- createLobby
+		- updateLobby
+		- addPlayer
+		- deleteLobby
+		- deleteLobbyAll
 */
 
 
@@ -139,15 +147,21 @@ const addPlayer = async (user_id, lobby_name) => {
 	try {
 		// get that lobby's data
 		const thisLobby = await lobby.findOne({ name: lobby_name });
-		if (thisLobby.currentPlayers < thisLobby.maxPlayers) {
-			// update the lobby data
-			thisLobby.playerList.push(user_id);		// add player's slack user_id to the playerList array
-			thisLobby.currentPlayers += 1;			// add 1 player count 
-			await thisLobby.save();					// saves to DB
+		if (thisLobby) {
+			if (thisLobby.currentPlayers < thisLobby.maxPlayers) {
+				// update the lobby data
+				thisLobby.playerList.push(user_id);		// add player's slack user_id to the playerList array
+				thisLobby.currentPlayers += 1;			// add 1 player count 
+				await thisLobby.save();					// saves to DB
+			}
+			else {
+				// lobby is full 
+				console.log("\nDebug: lobby/lobby-routers(): Lobby is full, failed to add player.\n");
+			}
 		}
 		else {
-			// lobby is full 
-			console.log("\nDebug: lobby/lobby-routers(): Lobby is full, failed to add player.\n");
+			// lobby doesn't exist, no match
+			console.log("\nDebug: lobby/lobby-routers(): No lobby name match, cannot Add Player.\n");
 		}
 		return thisLobby;
 	} catch (e) {
