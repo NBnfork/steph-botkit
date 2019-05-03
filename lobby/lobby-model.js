@@ -11,6 +11,7 @@
 		> [playerList] : string | An array of player ID
 		> buy-in : int | $ Buy-in when enter the lobby
 		> minBet : int | minimum bet amount = big blind = (Buy-in / 25) 
+
 */
 
 const mongoose = require('mongoose');
@@ -23,18 +24,18 @@ const MONEY_SCALE = 50000;
 const lobbySchema = new mongoose.Schema({
 	name: {
 		type: String,
-		trim: true //todo: make unique
+		trim: true 			// todo: make unique
 	},
 	maxPlayers: {
 		type: Number,
-		default: 6  // Means that we don't have to input in the request.
+		default: 6  		// Means that we don't have to input in the request.
 	},
 	currentPlayers: {
 		type: Number,
-		default: 0  // Means that we don't have to input in the request.
+		default: 0  		// Means that we don't have to input in the request.
 	},
 	playerList: [{
-		type: String // Array of IDs
+		type: String 		// Array of IDs
 	}],
 	buyin: {
 		type: Number,
@@ -42,7 +43,7 @@ const lobbySchema = new mongoose.Schema({
 	},
 	minBet: {
 		type: Number,
-		default: (MONEY_SCALE / 25) // minimum bet, the big-blind amount, scales with the buy-in
+		default: (MONEY_SCALE / 25) 	// minimum bet, the big-blind amount, scales with the buy-in
 	}
 });
 

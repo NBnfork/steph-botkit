@@ -2,7 +2,6 @@ const {
     getlobbies,
     getOneLobby,
     createLobby,
-    //updateLobby,
     addPlayer,
     deleteLobbyAll
 } = require('./lobby/lobby-router');
@@ -13,29 +12,26 @@ const showdown = message_blocks.showdown_mockup;
 
 //-------------------------------------------------------------------//
 
-// const bot2 = controller.spawn({
-//     token: process.env.BOT_TOKEN,
-//     incoming_webhook: {
-//         url: process.env.SLACK_WEBHOOK
-//     }
-// });
-
-
 const handleSlash = async (bot, message) => {
-    //Separate bot2 is needed to respond to all slash commands!
-    //I'm not sure why either, but without it bot doesnt send messages back.
-
     // #debug --------------------------------------------
-    console.log("\n\nslash-commands.js / handleSlash (): ----------------------");
-    console.log(message.command);
+    // console.log("\n\nslash-commands.js / handleSlash (): ----------------------");
+    // console.log(message.command);
     //----------------------------------------------------
 
     switch (message.command) {
+        /*
+            Testing purpose. 
+        */
         case '/talk':
+
             bot.reply(message, 'Sup. Slash commands are now working.');
             break;
 
+        /*
+            Prints the showdown message block.
+        */
         case '/results':
+
             bot.sendWebhook({
                 blocks: showdown,
                 channel: 'CHBAGGM4Y',
@@ -46,9 +42,12 @@ const handleSlash = async (bot, message) => {
             });
             break;
 
+        /*
+            Get all lobbies.
+        */
         case '/get-lobby':
+
             const all_lobbies = await getlobbies();
-            //console.log(all_lobbies);
             if (all_lobbies.length === 0) {
                 bot.reply(message, 'There are no available lobbies recorded in database.');
             }
@@ -59,9 +58,10 @@ const handleSlash = async (bot, message) => {
             }
             break;
 
+        /*
+            makes new lobby.
+        */
         case '/make-lobby':
-            //makes new lobby!
-
             const newlobby = await createLobby({
                 name: message.text,
                 // -------- Optional data to init ------------ 
@@ -71,28 +71,26 @@ const handleSlash = async (bot, message) => {
                 // buyin :
                 // -------------------------------------------
             });
-
-            //console.log(newlobby);
             bot.reply(message, `New lobby [${newlobby.name}] created! Currently has [${newlobby.currentPlayers}] players...`);
             break;
 
+        /*
+            joins a specified lobby by name.
+        */
         case '/join-lobby':
-            // joins a specified lobby by name
             const lobby_name = message.text;
             const user_id = message.user_id;
             const thisLobby = addPlayer(user_id, lobby_name);
-
-
-
-            // #Debug -------------------------------------
+            // #debug -------------------------------------
             // console.log(message);
             //---------------------------------------------
-
             break;
-        case '/check-lobby':
-            // Check the detail of one lobby
-            // Displays lobby name, [cur # players / max ], player1 player2 player3
 
+        /*
+            Check the detail of one lobby.
+                Displays lobby name, [cur # players / max ], player1 player2 player3.
+        */
+        case '/check-lobby':
             const gotThisLobby = await getOneLobby(message.text);
             if (gotThisLobby) {
                 const lobby_name = gotThisLobby.name;
@@ -101,7 +99,7 @@ const handleSlash = async (bot, message) => {
                 const players = gotThisLobby.playerList;
                 const buyin = gotThisLobby.buyin;
                 // #debug --------------------------------
-                console.log(gotThisLobby);
+                // console.log(gotThisLobby);
                 //----------------------------------------
 
                 var str = `Info for the requested lobby:\n`;
@@ -109,10 +107,9 @@ const handleSlash = async (bot, message) => {
                 players.forEach((player) => { str = str.concat(`<@${player}>, `) });
                 str = str.substr(0, str.length - 2);
                 // #debug --------------------------------
-                console.log(str);
+                // console.log(str);
                 //----------------------------------------
                 bot.reply(message, str);
-
             }
             else {
                 // Could not find lobby
@@ -120,8 +117,10 @@ const handleSlash = async (bot, message) => {
             }
             break;
 
+        /*
+            deletes all lobbies.
+        */
         case '/clear_lob':
-            // deletes all lobbies
             const deletedLobbies = await deleteLobbyAll();
             bot.reply(message, `Debug: All lobbies have been deleted from the database.`);
             break;
