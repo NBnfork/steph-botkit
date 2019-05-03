@@ -51,10 +51,10 @@ const getlobbies = async () => {
 	- Uses Mongoose function <my_model>.findByID(id) to retrieve a lobby from DB
 
 */
-const getOnelobby = async (id) => {
+const getOneLobby = async (lobby_name) => {
 	try {
-		const lobby = await lobby.findById(id);
-		return lobby;
+		const thisLobby = await lobby.findOne({ name: lobby_name });
+		return thisLobby;
 	} catch (e) {
 		return e;
 	}
@@ -179,7 +179,7 @@ const deleteLobbyAll = async () => {
 
 module.exports = {
 	getlobbies,
-	getOnelobby,
+	getOneLobby,
 	createLobby,
 	updateLobby,
 	addPlayer,

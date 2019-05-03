@@ -1,6 +1,6 @@
 const {
     getlobbies,
-    getOnelobby,
+    getOneLobby,
     createLobby,
     //updateLobby,
     addPlayer,
@@ -88,6 +88,36 @@ const handleSlash = async (bot, message) => {
             // console.log(message);
             //---------------------------------------------
 
+            break;
+        case '/check-lobby':
+            // Check the detail of one lobby
+            // Displays lobby name, [cur # players / max ], player1 player2 player3
+
+            const gotThisLobby = await getOneLobby(message.text);
+            if (gotThisLobby) {
+                const lobby_name = gotThisLobby.name;
+                const cur_p = gotThisLobby.currentPlayers;
+                const max_p = gotThisLobby.maxPlayers;
+                const players = gotThisLobby.playerList;
+                const buyin = gotThisLobby.buyin;
+                // #debug --------------------------------
+                console.log(gotThisLobby);
+                //----------------------------------------
+
+                var str = `Info for the requested lobby:\n`;
+                str = str.concat(lobby_name, ` [`, cur_p, `/`, max_p, `] | Buy-in $`, buyin, ` | `);
+                players.forEach((player) => { str = str.concat(`<@${player}>, `) });
+                str = str.substr(0, str.length - 2);
+                // #debug --------------------------------
+                console.log(str);
+                //----------------------------------------
+                bot.reply(message, str);
+
+            }
+            else {
+                // Could not find lobby
+                bot.reply(message, `No lobby matches the lobby name you provided.`);
+            }
             break;
 
         case '/clear_lob':
