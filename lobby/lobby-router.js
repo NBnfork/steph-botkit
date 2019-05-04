@@ -2,12 +2,7 @@
 	Lobby / Lobby-Router
 
 	Description:
-	- This js containts Lobby related DB functions:
-		- get all lobbies
-		- get lobby by ID
-		- get lobby by Name
-		- create a lobby
-		- delete a lobby
+	- This is a collection of lower level lobby-DB communication
 
 	- "Lobby" model reference:
 		- Attributes:

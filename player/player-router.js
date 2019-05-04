@@ -2,8 +2,7 @@
 	Player / Player-Router
 
 	Description:
-	- This js containts Lobby related DB functions:
-		-
+	- This is a collection of lower level player-DB communication
 
 	- "Player" model reference:
         - Attributes:
@@ -35,14 +34,17 @@ const player = require('./player-model');
 |	- and saves to DB
 |
 |	 																				*/
-const createPlayer = async (user_id, user_name) => {
+const createPlayer = async (data) => {
     try {
-        let data = {
-            slack_id = user_id,
-            name = user_name
-        };
+        // #debug ------------------------
+        // let data = {
+        //     slack_id: user_id,
+        //     name: user_name
+        // };
+        // -------------------------------
         const newPlayer = new player(data);		    // Constructs a player locally with the passed in data {user_id and user_name}
         await newPlayer.save(); 					// This pushes the locally created player up to the DB
+
     } catch (e) {
         // error statement
         console.log(e);
@@ -104,12 +106,11 @@ const checkIn = async (user_id, lobby_name, buyin) => {
 |	- Player has joined a lobby 
 |	- Arguments: {user_id, lobby_name, buyin}
 |   - Update: bank, wallet, lastLobby, isInLobby
-|   - Does not check if lobby exist
-|	
+|   - Does not check if lobby exist (no error, but may oversee bugs)
 |	 																				*/
-const checkOut = async (user_id, chips) => {
+const checkOut = async (thisPlayer) => {
     try {
-        let thisPlayer = await player.findOne({ slack_id: user_id });
+
         /*      Catch No User error             */
         if (!thisPlayer) {
             console.log('\nError at player/player-router.js -> checkOut()! Should not reach here, manager did not check if player exist in dB.\n');
@@ -120,7 +121,7 @@ const checkOut = async (user_id, chips) => {
         if (thisPlayer.isInLobby) {
 
             /*       Update Player data         */
-            thisPlayer.bank += chips;
+            thisPlayer.bank += thisPlayer.wallet;
             thisPlayer.wallet = 0;
             thisPlayer.isInLobby = false;
             //------------------------------------
@@ -130,8 +131,8 @@ const checkOut = async (user_id, chips) => {
             return updatedPlayer;
         }
         else {      /*      Player cannot join the lobby        */
-            console.log('\nError at player/player-router.js -> checkOut()! Should not reach here, manager did not check for bank balance, player overdraft, or Player already in lobby, double-joined.\n');
-            return thisPlayer;
+            console.log('\nError at player/player-router.js -> checkOut()! Should not reach here, manager did not check if player exist\n');
+            return null;
         }
     } catch (e) {
         // error statement
@@ -141,7 +142,55 @@ const checkOut = async (user_id, chips) => {
 }
 //----------------------------------------------------------------------------------
 
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Withdraw
+|
+|	Description:
+|	- Special usage, withdraw chips directly
+|																	*/
+const withdraw = async (user_id, chips) => {
 
+}
+//--------------------------------------------------------------------
+
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Deposit
+|
+|	Description:
+|	- Special usage, deposit chips directly
+|																	*/
+const deposit = async (user_id, chips) => {
+
+}
+//--------------------------------------------------------------------
+
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Get Player
+|
+|	Description:
+|	- Returns one player if exist
+|																	*/
+const getOnePlayer = async (user_id) => {
+    try {
+        const thisPlayer = await player.findOne({ slack_id: user_id });
+        return thisPlayer;
+    } catch (e) {
+        console.log(e);
+        return null;
+    }
+}
+//--------------------------------------------------------------------
+
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Get Player
+|
+|	Description:
+|	- Returns one player if exist
+|																	*/
+const getAllPlayerInLobby = async (lobby_name) => {
+
+}
+//--------------------------------------------------------------------
 
 module.exports = {
     createPlayer,
@@ -149,6 +198,7 @@ module.exports = {
     checkOut,
     withdraw,
     deposit,
-    getPlayer,
+    getOnePlayer,
+    getAllPlayerInLobby
 
 };

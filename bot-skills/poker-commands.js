@@ -3,11 +3,12 @@ const {
     registerPlayer,
     registerLobby,
     playerJoinLobby,
-    checkLobbyFull,
-    checkLobby,
+    lobbyIsFull,
+    getLobbyByName,
+    getLobbyPlayers,
     getAllLobby,
     lobbyRemovePlayer,
-    getPlayer,
+    getPlayerByID,
     getPlayerBank,
     assignChip,
     withdrawChip
@@ -57,7 +58,8 @@ const create_lobby_callback = async (convo, message) => {
         let res = {};
 
         /*      Load user data from DB by slack user ID         */
-        const user_slack_id = message.user;
+        const user_slack_id = message.user_id;
+        const user_slack_name = message.user_name;
         let user = await getPlayer(user_slack_id);
 
         // .......................................................
@@ -87,7 +89,7 @@ const create_lobby_callback = async (convo, message) => {
         let userIsOnRecord = true;
         if (!userIsOnRecord) {
             /*           Create a user                */
-            user = await registerPlayer(user_slack_id);
+            user = await registerPlayer(user_slack_id, user_slack_name);
             res = await assignChip(user_slack_id, 1000000);
         }
         else {
