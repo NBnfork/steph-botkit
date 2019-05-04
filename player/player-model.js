@@ -6,7 +6,9 @@
 	- returns the player
     - Attributes:
         > slack_id: string | Player's slack ID
-		> name : string | Player slack name
+        > name : string | Player slack name
+        > team_id : string | This account's workspace id
+        > team_domain : string | This account's workspace domain
 		> bank : int | Amount of Chips in bank
         > lastLobby : string | Last Played Lobby
         > wallet : int | Amount of Chips in wallet (withdrawn)
@@ -21,6 +23,12 @@ const playerSchema = new mongoose.Schema({
         type: String
     },
     name: {
+        type: String
+    },
+    team_id: {
+        type: String
+    },
+    team_domain: {
         type: String
     },
     bank: {

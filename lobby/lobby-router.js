@@ -53,9 +53,9 @@ const getlobbies = async () => {
 |	- to retrieve a lobby from DB
 |
 |	 																				*/
-const getOneLobby = async (lobby_name) => {
+const getOneLobby = async (lobby_id) => {
 	try {
-		const thisLobby = await lobby.findOne({ name: lobby_name });
+		const thisLobby = await lobby.findOne({ _id: lobby_id });
 		return thisLobby;
 	} catch (e) {
 		return e;
@@ -115,9 +115,9 @@ const createLobby = async (data) => {
 |	- returns the updated lobby model
 |
 |	 																				*/
-const updateLobby = async (lobby) => {
+const updateLobby = async (this_lobby) => {
 	try {
-		const updated_lobby = await lobby.findOneAndUpdate(lobby.name, lobby);			// Potential problem with atomicity.
+		const updated_lobby = await lobby.findOneAndUpdate(this_lobby._id, this_lobby);			// Potential problem with atomicity.
 		return updated_lobby;
 	} catch (e) {
 		console.log(e);
@@ -136,10 +136,10 @@ const updateLobby = async (lobby) => {
 |	- returns the deleted lobby model
 |
 |	 																	*/
-const deleteLobby = async (id) => {
+const deleteLobby = async (this_lobby) => {
 	try {
-		const lobby = await lobby.findByIdAndDelete(id);
-		return lobby;
+		const deleted_lobby = await lobby.findByIdAndDelete(this_lobby._id);
+		return deleted_lobby;
 	} catch (e) {
 		// error statements
 		console.log(e);

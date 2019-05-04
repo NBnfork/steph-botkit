@@ -7,12 +7,13 @@
 	- "Player" model reference:
         - Attributes:
             > slack_id: string | Player's slack ID
-            > name : string | Player name
+            > name : string | Player slack name
+            > team_id : string | This account's workspace id
+            > team_domain : string | This account's workspace domain
             > bank : int | Amount of Chips in bank
             > lastLobby : string | Last Played Lobby
             > wallet : int | Amount of Chips in wallet (withdrawn)
-            > isInLobby : Boolean | Whether player is current in a lobby ( on record )
-		- refer to player/player-model.js
+        > isInLobby : Boolean | Whether player is current in a lobby ( on record )		- refer to player/player-model.js
 
     Exports:
         - createPlayer
@@ -64,9 +65,9 @@ const createPlayer = async (data) => {
 |   - Does not check if lobby exist
 | 
 |	 																				*/
-const checkIn = async (user_id, lobby_name, buyin) => {
+const checkIn = async (data) => {
     try {
-        let thisPlayer = await player.findOne({ slack_id: user_id });
+        let thisPlayer = await player.findOne({ slack_id: data.slack_id, team_id: data.team_id });
         /*      Catch No User error             */
         if (!thisPlayer) {
             console.log('\nError at player/player-router.js -> checkIn()! Should not reach here, manager did not check if player exist in dB.\n');
@@ -74,22 +75,22 @@ const checkIn = async (user_id, lobby_name, buyin) => {
         }
 
         /*      Player can join the lobby       */
-        if (thisPlayer.bank >= buyin && !thisPlayer.isInLobby) {
+        if (thisPlayer.bank >= data.buyin && !thisPlayer.isInLobby) {
 
             /*       Update Player data         */
-            thisPlayer.bank -= buyin;
-            thisPlayer.wallet = buyin;
-            thisPlayer.lastLobby = lobby_name;
+            thisPlayer.bank -= data.buyin;
+            thisPlayer.wallet = data.buyin;
+            thisPlayer.lastLobby = data.lobby_id;
             thisPlayer.isInLobby = true;
             //------------------------------------
 
             /*        Push Player updates        */
-            const updatedPlayer = await player.findOneAndUpdate(thisPlayer.slack_id, thisPlayer);
+            const updatedPlayer = await player.findOneAndUpdate({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id }, thisPlayer);
             return updatedPlayer;
         }
         else {      /*      Player cannot join the lobby        */
             console.log('\nError at player/player-router.js -> checkIn()! Should not reach here, manager did not check for bank balance, player overdraft, or Player already in lobby, double-joined.\n');
-            return thisPlayer;
+            return null;
         }
     } catch (e) {
         // error statement
@@ -108,9 +109,9 @@ const checkIn = async (user_id, lobby_name, buyin) => {
 |   - Update: bank, wallet, lastLobby, isInLobby
 |   - Does not check if lobby exist (no error, but may oversee bugs)
 |	 																				*/
-const checkOut = async (thisPlayer) => {
+const checkOut = async (data) => {
     try {
-
+        let thisPlayer = await player.findOne({ slack_id: data.slack_id, team_id: data.team_id });
         /*      Catch No User error             */
         if (!thisPlayer) {
             console.log('\nError at player/player-router.js -> checkOut()! Should not reach here, manager did not check if player exist in dB.\n');
@@ -127,7 +128,7 @@ const checkOut = async (thisPlayer) => {
             //------------------------------------
 
             /*        Push Player updates        */
-            const updatedPlayer = await player.findOneAndUpdate(thisPlayer.slack_id, thisPlayer);
+            const updatedPlayer = await player.findOneAndUpdate({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id }, thisPlayer);
             return updatedPlayer;
         }
         else {      /*      Player cannot join the lobby        */
@@ -143,36 +144,14 @@ const checkOut = async (thisPlayer) => {
 //----------------------------------------------------------------------------------
 
 /*--------------------------------------------------------------------
-|	[Player / Player-Router.js] Withdraw
-|
-|	Description:
-|	- Special usage, withdraw chips directly
-|																	*/
-const withdraw = async (user_id, chips) => {
-
-}
-//--------------------------------------------------------------------
-
-/*--------------------------------------------------------------------
-|	[Player / Player-Router.js] Deposit
-|
-|	Description:
-|	- Special usage, deposit chips directly
-|																	*/
-const deposit = async (user_id, chips) => {
-
-}
-//--------------------------------------------------------------------
-
-/*--------------------------------------------------------------------
 |	[Player / Player-Router.js] Get Player
 |
 |	Description:
 |	- Returns one player if exist
 |																	*/
-const getOnePlayer = async (user_id) => {
+const getOnePlayer = async (data) => {
     try {
-        const thisPlayer = await player.findOne({ slack_id: user_id });
+        const thisPlayer = await player.findOne({ slack_id: data.slack_id, team_id: data.team_id });
         return thisPlayer;
     } catch (e) {
         console.log(e);
@@ -182,12 +161,49 @@ const getOnePlayer = async (user_id) => {
 //--------------------------------------------------------------------
 
 /*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Withdraw
+|
+|	Description:
+|	- Special usage, withdraw chips directly
+|																	*/
+const withdraw = async (data, chips) => {
+
+}
+//--------------------------------------------------------------------
+
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Deposit
+|
+|	Description:
+|	- Special usage, deposit chips directly
+|   - chips ensured to be positive or atleast zero
+|																	*/
+const deposit = async (data, chips) => {
+    let thisPlayer = await getOnePlayer(data);
+    if (!thisPlayer) {
+        console.log('\n--------------------\nERROR! player-routers.js->deposit() could not find the player according to player_data\n--------------------------\n');
+        return null;
+    }
+    /*       Update Player data         */
+    thisPlayer.bank += chips;
+    //------------------------------------
+
+    /*       Push Player updates        */
+    const updatedPlayer = await player.findOneAndUpdate({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id }, thisPlayer);
+    return updatedPlayer;
+}
+//--------------------------------------------------------------------
+
+
+
+/*--------------------------------------------------------------------
 |	[Player / Player-Router.js] Get Player
 |
 |	Description:
 |	- Returns one player if exist
 |																	*/
-const getAllPlayerInLobby = async (lobby_name) => {
+const getAllPlayerInLobby = async (lobby_id) => {
+
 
 }
 //--------------------------------------------------------------------

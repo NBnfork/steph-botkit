@@ -15,14 +15,26 @@ const {
     getAllPlayerInLobby
 } = require('../player/player-router');
 
-const getLobbyByName = async (name) => {
-    const thisLobby = await getOneLobby(name);
-    return thisLobby;
+const getLobbyByID = async (lobby_id) => {
+    const thisLobby = await getOneLobby(lobby_id);
+    if (thisLobby) {
+        return thisLobby;
+    }
+    else {
+        return null;
+    }
+
 }
 
-const getPlayerByID = async (slack_id) => {
-    const thisPlayer = await getOnePlayer(slack_id);
-    return thisPlayer;
+const getPlayerByID = async (player_data) => {
+    const thisPlayer = await getOnePlayer(player_data);
+    if (thisPlayer) {
+        return thisPlayer;
+    }
+    else {
+        return null;
+    }
+
 }
 
 /*----------------------------------------------------------------------
@@ -33,16 +45,16 @@ const getPlayerByID = async (slack_id) => {
 |	- Calls player.checkOut procedure
 |	- Validations for these actions
 |	 																	*/
-const lobbyRemovePlayer = async (slack_id) => {
+const lobbyRemovePlayer = async (player_data) => {
     /*      Get player      */
-    const thisPlayer = await getPlayerByID(slack_id);
+    const thisPlayer = await getPlayerByID(player_data);
     /*      Check-out Player    */
     if (thisPlayer) {
         thisPlayer = await checkOut(thisPlayer);
     }
     else {
         // #debug ------------------------------------
-        console.log(`\nmanager.js -> lobbyRemovePlayer() : getOnePlayer did not find user\n` + user_id);
+        console.log(`\nmanager.js -> lobbyRemovePlayer() : getOnePlayer did not find user\n` + player_data.slack_id);
     }
 
     return thisPlayer;                 // Returns updated player object OR null
@@ -72,33 +84,33 @@ const lobbyIsFull = async (lobby_name) => {
 }
 
 /*      Read the chip amount from user's bank (DB) by Slack user ID     */
-const getPlayerBank = async (slack_id) => {
-    const thisPlayer = await getPlayerByID(slack_id);
+const getPlayerBank = async (player_data) => {
+    const thisPlayer = await getPlayerByID(player_data);
     const chips = thisPlayer.bank;
     return chips;
 }
 
-const registerPlayer = async (slack_id, name) => {
-    await createPlayer({ slack_id, name });
-    const newPlayer = await getPlayerByID(slack_id);
+const registerPlayer = async (player_data) => {
+    await createPlayer(player_data);
+    const newPlayer = await getPlayerByID(player_data);
     return newPlayer;
 }
 
-const registerLobby = async (name, buyin) => {
-    await createLobby({ name, buyin });
+const registerLobby = async (lobby_data) => {
+    await createLobby(lobby_data);
     const newLobby = await getLobbyByName(name);
     return newLobby;
 }
 
-const getLobbyPlayers = async (lobby_name) => {
-    const playerList = await getAllPlayerInLobby(lobby_name);
+const getLobbyPlayers = async (lobby_id) => {
+    const playerList = await getAllPlayerInLobby(lobby_id);
     const num_players = playerList.length();
     return { num_players, player_list };
 }
 
-const playerJoinLobby = async (slack_id, lobby_name) => {
-    const thisPlayer = await getPlayerByID(slack_id);
-    const thisLobby = await getLobbyByName(lobby_name);
+const playerJoinLobby = async (user_data, lobby_id) => {
+    const thisPlayer = await getPlayerByID(user_data);
+    const thisLobby = await getLobbyByID(lobby_id);
     // check if player exist
     if (!thisPlayer) {
         return {
@@ -126,10 +138,32 @@ const playerJoinLobby = async (slack_id, lobby_name) => {
         valid = false;
     }
 
-
     // check if lobby curr player < max players
+    let currPlayers = await getLobbyPlayers();
+    if (currPlayers.num_players >= thisLobby.maxPlayers) {
+        valid = false;
+    }
 
     // check-in player to lobby
+    const updatedPlayer = await checkIn(thisPlayer);
+    if (updatedPlayer) {
+        // #debug -----------------------------
+        currPlayers = await getLobbyPlayers();
+        console.log(`\n------------------\nCheck: ` + updatedPlayer.user_name + ` is in [\n` + currPlayers.player_list + `]-------------\n`)
+        //-------------------------------------
+        const updated_lobby = await getLobbyByID(lobby_id);
+        if (updated_lobby) {
+            return updated_lobby;
+        }
+
+    } else {
+        // #debug -----------------------------
+        currPlayers = await getLobbyPlayers();
+        console.log(`\n------------------\nFailed to add ` + updatedPlayer.user_name + `. This is the lobby: [\n` + thisLobby + `]-------------\n`)
+        //-------------------------------------      
+        return null;
+    }
+
 }
 
 
@@ -139,13 +173,14 @@ const getAllLobby = async () => {
 
 }
 
-
-
-const assignChip = async (user_id, amount) => {
-    // adds chips to user's bank (DB) by Slack user ID
-    // cannot be negative
-    // return {assignChip : `success`}
-
+const assignChip = async (player_data, amount) => {
+    /*      Adds chips to user's bank (DB) by Slack user ID     */
+    if (amount < 0) {
+        console.log(`\nmanager.js->assignChip: attempted to deposit $` + amount`\n`);
+        return null;
+    }
+    const updatedPlayer = await deposit(player_data, amount);
+    return updatedPlayer;
 }
 
 const withdrawChip = async (user_id, amount) => {
@@ -160,7 +195,7 @@ module.exports = {
     registerLobby,
     playerJoinLobby,
     lobbyIsFull,
-    getLobbyByName,
+    getLobbyByID,
     getLobbyPlayers,
     getAllLobby,
     lobbyRemovePlayer,
