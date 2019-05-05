@@ -44,7 +44,7 @@ const create_or_join = [
     }
 ]
 
-const createNewUser = async (convo, user, user_data) => {
+const createNewUser = async (convo, user_data, user) => {
     /*           Create a user                */
     let res = {};
     const new_player_chips = 1000000;

@@ -43,7 +43,8 @@ const createPlayer = async (data) => {
         //     name: user_name
         // };
         // -------------------------------
-        const newPlayer = new player(data);		    // Constructs a player locally with the passed in data {user_id and user_name}
+        const newPlayer = new player(data);// Constructs a player locally with the passed in data {user_id and user_name}
+        console.log('in createPlayer ' + newPlayer);
         await newPlayer.save(); 					// This pushes the locally created player up to the DB
 
     } catch (e) {
