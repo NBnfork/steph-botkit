@@ -89,9 +89,9 @@ const getPlayerBank = async (player_data) => {
     return chips;
 }
 
-const registerPlayer = async (player_data) => {
-    await createPlayer(player_data);
-    const newPlayer = await getPlayerByID(player_data);
+const registerPlayer = async (user_data) => {
+    await createPlayer(user_data);
+    const newPlayer = await getPlayerByID(user_data);
     return newPlayer;
 }
 
@@ -113,23 +113,26 @@ const getLobbyPlayers = async (lobby_id) => {
 const playerJoinLobby = async (user_data, lobby_id) => {
     const thisPlayer = await getPlayerByID(user_data);
     let thisLobby = await getLobbyByID(lobby_id);
+    let valid = true;
     // check if player exist
     if (!thisPlayer) {
-        return {
-            success: false,
-            player: undefined,
-            lobby: undefined,
-            text: `Could not fint this user [` + slack_id + `] in record.`
-        };
+        // return {
+        //     success: false,
+        //     player: undefined,
+        //     lobby: undefined,
+        //     text: `Could not fint this user [` + slack_id + `] in record.`
+        // };
+        return null;
     }
     // check if player is already in lobby
     if (thisPlayer.isInLobby) {
-        return {
-            success: false,
-            player: thisPlayer,
-            lobby: undefined,
-            text: `<@${thisPlayer.slack_id}> is already in lobby.`
-        };
+        // return {
+        //     success: false,
+        //     player: thisPlayer,
+        //     lobby: undefined,
+        //     text: `<@${thisPlayer.slack_id}> is already in lobby.`
+        // };
+        return null;
     }
     // check if lobby exist    
     if (!thisLobby) {
@@ -146,22 +149,36 @@ const playerJoinLobby = async (user_data, lobby_id) => {
         valid = false;
     }
 
+    // #debug-------------------------------
+    // console.log('\n--------- manager.js -----------');
+    // console.log('\n---- thisPlayer ----\n');
+    // console.log(thisPlayer);
+    //-------------------------------------
     // check-in player to lobby
-    const updatedPlayer = await checkIn(thisPlayer);
-    if (updatedPlayer) {
-        // #debug -----------------------------
-        currPlayers = await getLobbyPlayers(thisLobby._id);
-        console.log(`\n------------------\nCheck: ` + updatedPlayer.name + ` is in [\n` + currPlayers.playerList + `]-------------\n`)
-        //-------------------------------------
-        const updated_lobby = await getLobbyByID(lobby_id);
-        if (updated_lobby) {
-            return updated_lobby;
-        }
+    if (valid) {
+        const updatedPlayer = await checkIn({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id, lobby_id: thisLobby._id, buyin: thisLobby.buyin });
+        if (updatedPlayer) {
+            // #debug -----------------------------
+            // currPlayers = await getLobbyPlayers(thisLobby._id);
+            // console.log(`\n------------------\nCheck: ` + updatedPlayer.name + ` is in [\n` + currPlayers.playerList + `]-------------\n`);
+            //-------------------------------------
+            const updated_lobby = await getLobbyByID(lobby_id);
+            // #debug-------------------------------
+            // console.log('\n--------- manager.js -> playerJoinLobby() -----------');
+            // console.log('\n---- updated_lobby ----\n');
+            // console.log(updated_lobby);
+            //-------------------------------------
+            if (updated_lobby) {
 
-    } else {
+                return updated_lobby;
+            }
+
+        }
+    }
+    else {
         // #debug -----------------------------
         currPlayers = await getLobbyPlayers(thisLobby._id);
-        console.log(`\n------------------\nFailed to add ` + updatedPlayer.name + `. This is the lobby: [\n` + thisLobby + `]-------------\n`)
+        console.log(`\n------------------\nFailed to add ` + user_data.name + `. This is the lobby: [\n` + thisLobby + `]-------------\n`);
         //-------------------------------------      
         return null;
     }

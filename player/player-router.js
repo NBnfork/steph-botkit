@@ -60,14 +60,26 @@ const createPlayer = async (data) => {
 |
 |	Description:
 |	- Player has joined a lobby 
-|	- Arguments: {user_id, lobby_name, buyin}
+|	- Arguments: {user_id, lobby_id, buyin}
 |   - Update: bank, wallet, lastLobby, isInLobby
 |   - Does not check if lobby exist
 | 
 |	 																				*/
 const checkIn = async (data) => {
     try {
+        // #debug -----------------------------
+        console.log('\n----------- player/player-router.js -> checkIn() ---------------');
+        console.log('----- data -----\n');
+        console.log(data);
+        // ------------------------------------
+
         let thisPlayer = await player.findOne({ slack_id: data.slack_id, team_id: data.team_id });
+
+        // #debug -----------------------------
+        console.log('\n----- thisPlayer -----\n');
+        console.log(thisPlayer);
+        // ------------------------------------
+
         /*      Catch No User error             */
         if (!thisPlayer) {
             console.log('\nError at player/player-router.js -> checkIn()! Should not reach here, manager did not check if player exist in dB.\n');
@@ -75,7 +87,7 @@ const checkIn = async (data) => {
         }
 
         /*      Player can join the lobby       */
-        if (thisPlayer.bank >= data.buyin && !thisPlayer.isInLobby) {
+        if (thisPlayer.bank >= data.buyin && thisPlayer.isInLobby === false) {
 
             /*       Update Player data         */
             thisPlayer.bank -= data.buyin;
@@ -189,7 +201,9 @@ const deposit = async (data, chips) => {
     //------------------------------------
 
     /*       Push Player updates        */
-    const updatedPlayer = await player.findOneAndUpdate({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id }, thisPlayer);
+    let updatedPlayer = await player.findOneAndUpdate({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id }, thisPlayer);
+    updatedPlayer = await player.findById(updatedPlayer._id);
+
     return updatedPlayer;
 }
 //--------------------------------------------------------------------
