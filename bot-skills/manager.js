@@ -23,7 +23,6 @@ const getLobbyByID = async (lobby_id) => {
     else {
         return null;
     }
-
 }
 
 const getPlayerByID = async (player_data) => {
@@ -61,9 +60,9 @@ const lobbyRemovePlayer = async (player_data) => {
 
 }
 
-const lobbyIsFull = async (lobby_name) => {
+const lobbyIsFull = async (lobby_id) => {
     /*      Get lobby           */
-    const thisLobby = await getLobbyByName(lobby_name);
+    const thisLobby = await getLobbyByID(lobby_id);
 
     /*      Return if not found     */
     if (!thisLobby) {
@@ -74,7 +73,7 @@ const lobbyIsFull = async (lobby_name) => {
     }
 
     /*      Count players       */
-    const playerList = await getAllPlayerInLobby(lobby_name);
+    const playerList = await getAllPlayerInLobby(thisLobby._id);
 
     /*      Check Occupance     */
     if (playerList.length() < thisLobby.maxPlayers) {
@@ -97,20 +96,23 @@ const registerPlayer = async (player_data) => {
 }
 
 const registerLobby = async (lobby_data) => {
-    await createLobby(lobby_data);
-    const newLobby = await getLobbyByName(name);
+    const newLobby = await createLobby(lobby_data);
     return newLobby;
 }
 
 const getLobbyPlayers = async (lobby_id) => {
     const playerList = await getAllPlayerInLobby(lobby_id);
-    const num_players = playerList.length();
-    return { num_players, player_list };
+    // #debug -----------------------------
+    console.log("\n--------- manager.js -> getLobbyPlayers -> return from getAllPlayerInLobby -----------------\n");
+    console.log(playerList);
+    //-----------------------------------
+    let num_players = playerList.length;
+    return { num_players, playerList };
 }
 
 const playerJoinLobby = async (user_data, lobby_id) => {
     const thisPlayer = await getPlayerByID(user_data);
-    const thisLobby = await getLobbyByID(lobby_id);
+    let thisLobby = await getLobbyByID(lobby_id);
     // check if player exist
     if (!thisPlayer) {
         return {
@@ -139,7 +141,7 @@ const playerJoinLobby = async (user_data, lobby_id) => {
     }
 
     // check if lobby curr player < max players
-    let currPlayers = await getLobbyPlayers();
+    let currPlayers = await getLobbyPlayers(thisLobby._id);
     if (currPlayers.num_players >= thisLobby.maxPlayers) {
         valid = false;
     }
@@ -148,8 +150,8 @@ const playerJoinLobby = async (user_data, lobby_id) => {
     const updatedPlayer = await checkIn(thisPlayer);
     if (updatedPlayer) {
         // #debug -----------------------------
-        currPlayers = await getLobbyPlayers();
-        console.log(`\n------------------\nCheck: ` + updatedPlayer.user_name + ` is in [\n` + currPlayers.player_list + `]-------------\n`)
+        currPlayers = await getLobbyPlayers(thisLobby._id);
+        console.log(`\n------------------\nCheck: ` + updatedPlayer.name + ` is in [\n` + currPlayers.playerList + `]-------------\n`)
         //-------------------------------------
         const updated_lobby = await getLobbyByID(lobby_id);
         if (updated_lobby) {
@@ -158,8 +160,8 @@ const playerJoinLobby = async (user_data, lobby_id) => {
 
     } else {
         // #debug -----------------------------
-        currPlayers = await getLobbyPlayers();
-        console.log(`\n------------------\nFailed to add ` + updatedPlayer.user_name + `. This is the lobby: [\n` + thisLobby + `]-------------\n`)
+        currPlayers = await getLobbyPlayers(thisLobby._id);
+        console.log(`\n------------------\nFailed to add ` + updatedPlayer.name + `. This is the lobby: [\n` + thisLobby + `]-------------\n`)
         //-------------------------------------      
         return null;
     }

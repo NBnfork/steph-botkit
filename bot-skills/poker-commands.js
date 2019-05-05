@@ -4,7 +4,7 @@ const {
     registerLobby,
     playerJoinLobby,
     lobbyIsFull,
-    getLobbyByID,
+    getLobby,
     getLobbyPlayers,
     getAllLobby,
     lobbyRemovePlayer,
@@ -44,6 +44,134 @@ const create_or_join = [
     }
 ]
 
+const createNewUser = async (convo, user, user_data) => {
+    /*           Create a user                */
+    let res = {};
+    const new_player_chips = 1000000;
+    convo.say(`I have created a new account for you, <@${user.slack_id}>. You now have \$${new_player_chips}.`);
+    user = await registerPlayer(user_data);
+    res = await assignChip(user_data, new_player_chips);
+    if (!user || !res) {
+        console.log(`\n----------------------\nERROR! poker-commands.js failed to create user / assign chip.\n----------------------\n`)
+        convo.say('Oops! poker-commands.js failed to create a user. Ask for help.');
+    }
+    convo.next();
+}
+
+/*------------------------------------------------------------------------------------
+|   Setup Lobby
+|
+|   Description:
+|   This is a callback function.
+|   Assumes the necessary inputs have been recieved in convo.vars
+|                                                                                   */
+const setupLobby = async (convo, user_data, user) => {
+
+    convo.say('Lobby name is \"' + convo.vars.lobby_name + '\", and buy-in is $[' + convo.vars.lobby_buyin + `].\nJust a moment <@${user.slack_id}>, let me try to set things up for you...`);
+
+    /*      Only execute the the default values are properly overwritten        */
+    if (convo.vars.lobby_name && convo.vars.lobby_buyin) {
+
+        /*      Create Lobby with the given info        */
+        const created_lobby = await registerLobby({ name: convo.vars.lobby_name, buyin: convo.vars.lobby_buyin });
+
+        /*      Add this player to the new lobby        */
+        const updated_lobby = await playerJoinLobby(user_data, created_lobby._id);
+
+        /*      Check if the last procedure was successful      */
+        if (updated_lobby) {
+            console.log(`Debug: Created lobby successfully and added user to lobby successfully:\nLobby Name = ` + updated_lobby.name + ` & User Name = ` + user.name` \n`);
+            convo.say(`<@${user.slack_id}> has created and joined the lobby [` + updated_lobby.name + `].\nWaiting another player to join to start the game.\nPing me if anyone would like to join.`);
+            convo.complete();
+
+        } else {
+            console.log(`Debug: poker-commands.js : seems like there was problem creating and joining lobby.\n`);
+            convo.say(`Oops! poker-copmmands.js has an error. :O`);
+            convo.stop();
+        }
+    }
+    else {
+        convo.say(`Oops! poker-copmmands.js has an error. :O`);
+        convo.stop();
+    }
+}
+
+const getLobbyBuyinFromUser = (convo, user_data, user) => {
+    /*      Get the lobby buy-in from user      */
+    // ...............................
+    // todo : 						..
+    // give user a drop down menu   ..
+    // to choose buy-in             ..
+    // if player has enough in bank ..
+    //              and buy-in > 0	..
+    //      validBuyin = true;      ..
+    // else                         ..
+    //      explain to user         ..
+    // ...............................     
+    convo.ask('What is the buyin for this lobby? Please enter a value. (Recommend $50000)', [
+        {
+            default: true,
+            callback: function (reply, convo) {
+
+                convo.setVar('lobby_buyin', reply.text);
+                // #debug--------------------
+                console.log('\n--- vars.lobby_name (2) ---\n');
+                console.log(convo.vars.lobby_name);
+                //----------------------------
+
+                if (user.bank < convo.vars.lobby_buyin) {
+                    console.log("\npoker-commands.js->create_lobby_callback(): Player overdraft.\n");
+                    convo.say('It appears that your bank account do not have enough chips. You have $' + user.bank + ' but this lobby has a $' + convo.vars.lobby_buyin + '.');
+                    //convo.stop();
+                    return false;
+                }
+                convo.next();
+
+                setupLobby(convo, user_data, user);
+            }
+        }
+    ]);
+}
+
+/*------------------------------------------------------------------------------------
+|   Get Lobby Name from User
+|
+|   Description:
+|   This is a callback function.
+|   Gets a lobby name from user
+|                                                                                   */
+const getLobbyNameFromUser = (convo, user_data, user) => {
+    convo.ask('What is the name of your lobby? Please enter a lobby name.', [
+        {
+            default: true,
+            callback: function (reply, convo) {
+
+                // #debug ------------------
+                // console.log('\n----------------- Get the lobby name from user --------------------\n');
+                // console.log('\n--- reply ---\n');
+                // console.log(reply);
+                //convo.say(`lobby name: ` + user_set_lobby_name);
+                //----------------------------------
+                convo.setVar('lobby_name', reply.text);
+
+                // #debug--------------------
+                // console.log('\n--- vars.lobby_name ---\n');
+                // console.log(convo.vars.lobby_name);
+                //----------------------------
+
+                convo.next();
+
+                /*      Get the lobby buy-in from user      */
+                getLobbyBuyinFromUser(convo, user_data, user);
+
+                //return true;
+            }
+        }
+    ]
+    );
+
+}
+
 /*------------------------------------------------------------------------------------
 |   User to create Lobby callback function
 |
@@ -55,19 +183,25 @@ const create_or_join = [
 |                                                                                   */
 const create_lobby_callback = async (convo, message) => {
     try {
-        let res = {};
-
         /*      Load user data from DB by slack user ID         */
-        const user_data = {};
-        user_data.slack_id = message.user_id;
-        user_data.name = message.user_name;
-        user_data.team_id = message.team_id;
-        user_data.team_name = message.team_id;
-
+        let user_data = {};
+        user_data.slack_id = message.user.id;
+        user_data.name = message.user.name;
+        user_data.team_id = message.team.id;
+        user_data.team_name = message.team.domain;
         let NEW_PLAYER = true;
+        // #debug ---------------------------------------------------------------
+        // console.log('\n---------- Begin create_lobby_callback ---------\n');
+        // console.log('\n--- {message} ---\n');
+        // console.log(message);
+        // console.log('\n--- {user_data} ---\n');
+        // console.log(user_data);
+        // ----------------------------------------------------------------------
         let user = await getPlayerByID(user_data);
         if (user) {
             NEW_PLAYER = false;
+            convo.say(`Welcome back, <@${user.slack_id}>`);
+            convo.next();
         }
 
         // .......................................................
@@ -97,78 +231,21 @@ const create_lobby_callback = async (convo, message) => {
 
         if (NEW_PLAYER) {
             /*           Create a user                */
-            user = await registerPlayer(user_data);
-            res = await assignChip(user_data, 1000000);
-            if (!user || !res) {
-                console.log(`\n----------------------\nERROR! poker-commands.js failed to create user / assign chip.\n----------------------\n`)
-                convo.say('Oops! poker-commands.js failed to create a user. Ask for help.');
-            }
-            convo.next();
+            await createNewUser(convo, user, user_data);
         }
 
         let user_set_lobby_name = 'no_name';
         let user_set_buyin = -1;
 
         /*      Get the lobby name from user       */
-        convo.ask('What is the name of your lobby? Please enter a lobby name.', function (response, convo) {
-            user_set_lobby_name = response;
-            convo.next();
+        getLobbyNameFromUser(convo, user_data, user);
 
 
 
-        });
 
 
-        /*      Get the lobby buy-in from user      */
-        convo.ask('What is the buyin for this lobby? Please enter a value. (Recommend $50000)', function (response, convo) {
-            user_set_buyin = response;
-            convo.next();
-            if (user.bank < user_set_buyin) {
-                console.log("\npoker-commands.js->create_lobby_callback(): Player overdraft.\n");
-                convo.say('It appears that your bank account do not have enough chips. You have $' + user.bank + ' but this lobby has a $' + user_set_buyin + '.');
-                convo.next();
-                return false;
-            }
 
-        });
-        // ...............................
-        // todo : 						..
-        // give user a drop down menu   ..
-        // to choose buy-in             ..
-        // if player has enough in bank ..
-        //              and buy-in > 0	..
-        //      validBuyin = true;      ..
-        // else                         ..
-        //      explain to user         ..
-        // ...............................                  
 
-        convo.say('Lobby name is \"' + user_set_lobby_name + '\", and buy-in is $[' + user_set_buyin + `].\nJust a moment <@${message.user_id}>, let me try to set things up for you...`);
-        convo.next();
-        /*      Only execute the the default values are properly overwritten        */
-        if (user_set_buyin !== -1 && user_set_lobby_name !== 'no_name') {
-
-            /*      Create Lobby with the given info        */
-            const created_lobby = await registerLobby({ name: user_set_lobby_name, buyin: user_set_buyin });
-
-            /*      Add this player to the new lobby        */
-            const updated_lobby = await playerJoinLobby(user_data, created_lobby._id);
-
-            /*      Check if the last procedure was successful      */
-            if (updated_lobby) {
-                console.log(`Debug: Created lobby successfully and added user to lobby successfully:\nLobby Name = ` + updated_lobby.name + ` & User Name = ` + user.name` \n`);
-                convo.say(`<@${user.user_id}> has created and joined the lobby [` + updated_lobby.name + `].\nWaiting another player to join to start the game.\nPing me if anyone would like to join.`);
-                convo.next();
-                return true;
-            } else {
-                console.log(`Debug: poker-commands.js : seems like there was problem creating and joining lobby.\n`);
-                convo.say(`Oops! poker-copmmands.js has an error. :O`);
-                convo.next();
-            }
-        }
-        else {
-            convo.say(`Oops! poker-copmmands.js has an error. :O`);
-            return false;
-        }
     } catch (e) {
         // Error statments
         console.log(e);
@@ -182,17 +259,19 @@ module.exports = async (controller) => {
         bot.startConversation(message, function (err, convo) {
             convo.say('Shall we start a game?');
             convo.ask(
-                { attachments: create_or_join },
+                { attachments: create_or_join },                    // buttons available
                 [
                     {
-                        pattern: "yes",
-                        callback: function (reply, convo) {
-                            //const str = '<@' + message.user + '> has joined a game lobby.';
-                            //convo.say(str);
+                        pattern: "yes",                                 // if response is yes
+                        callback: async (reply, convo) => {             // do this procedure as callback
                             // #debug --------------------------------
-                            console.log('\n------------------------\n' + reply + '\n');
+                            // console.log('\n---------- About to enter create_lobby_callback -----------\n');
+                            // console.log('\n --- {reply} --- \n');
+                            // console.log(reply);
+                            // console.log('\n --- {message} --- \n');
+                            // console.log(message);
                             //----------------------------------------
-                            create_lobby_callback(convo, message);
+                            let res = await create_lobby_callback(convo, reply.raw_message);        // the actual callback function
                             convo.next();
                         }
                     },

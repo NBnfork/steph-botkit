@@ -200,11 +200,19 @@ const deposit = async (data, chips) => {
 |	[Player / Player-Router.js] Get Player
 |
 |	Description:
-|	- Returns one player if exist
+|	- Returns an array of players
 |																	*/
 const getAllPlayerInLobby = async (lobby_id) => {
+    // #debug -----------------------------
+    console.log("\n--------- player-router.js -> getAllPlayerInLobby -----------------\n");
+    console.log('lobby_id is ' + lobby_id);
+    //-----------------------------------
+    const playerList = player.find({ lastLobby: lobby_id, isInLobby: true });
+    // #debug -----------------------------
+    //console.log(playerList);
+    //-----------------------------------
 
-
+    return playerList;
 }
 //--------------------------------------------------------------------
 
