@@ -58,12 +58,7 @@ const createNewUser = async (convo, user_data, user) => {
     }
     return user;
 }
-const finishSetup = async (convo, player, lobby) => {
-    await convo.say('... Completed!');
-    convo.next();
-    console.log('\n-------------- Completed --------------\n');
-    return lobby;
-}
+
 /*------------------------------------------------------------------------------------
 |   Setup Lobby
 |
@@ -81,28 +76,27 @@ const setupLobby = async (convo, user_data, user) => {
         //convo.say('testing2');
         /*      Create Lobby with the given info        */
         const created_lobby = await registerLobby({ name: convo.vars.lobby_name, buyin: convo.vars.lobby_buyin });
-        convo.say('Created lobby' + created_lobby.name);
+        convo.say('Created lobby \"' + created_lobby.name + '\".');
+
         /*      Add this player to the new lobby        */
         const updated_lobby = await playerJoinLobby(user_data, created_lobby._id);
-        convo.say('<@' + user.slack_id + '> is in the lobby.');
+        convo.say('<@' + user.slack_id + '> is waiting in the lobby.');
+
         /*      Check if the last procedure was successful      */
         if (updated_lobby) {
-            // #debug----------------------
-            console.log('\n-------------- Final debug --------------\n');
-            console.log(updated_lobby);
-            //------------------------------
-            convo.say('Game starts soon as another player joins');
-            const res = await finishSetup(convo, user, updated_lobby);
-            console.log('\n-------------- leaving --------------\n');
-            return res;
+
+            convo.say('Game starts as soon as another player joins.');
+            convo.say('Ping me if anyone would like to join the game.')
+            convo.next();
+            return updated_lobby;
         } else {
             console.log(`Debug: poker-commands.js : seems like there was problem creating and joining lobby.\n`);
-            //convo.say(`Oops! poker-copmmands.js has an error. :O`);
+            convo.say(`Oops! poker-copmmands.js has an error. :O`);
 
         }
     }
     else {
-        //convo.say(`Oops! poker-copmmands.js has an error. :O`);
+        convo.say(`Oops! poker-copmmands.js has an error. :O`);
 
     }
 }
