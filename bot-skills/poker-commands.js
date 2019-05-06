@@ -152,26 +152,11 @@ const getLobbyNameFromUser = (convo, user_data, user) => {
         {
             default: true,
             callback: function (reply, convo) {
-
-                // #debug ------------------
-                // console.log('\n----------------- Get the lobby name from user --------------------\n');
-                // console.log('\n--- reply ---\n');
-                // console.log(reply);
-                //convo.say(`lobby name: ` + user_set_lobby_name);
-                //----------------------------------
                 convo.setVar('lobby_name', reply.text);
-
-                // #debug--------------------
-                // console.log('\n--- vars.lobby_name ---\n');
-                // console.log(convo.vars.lobby_name);
-                //----------------------------
-
-
                 convo.next();
+
                 /*      Get the lobby buy-in from user      */
                 getLobbyBuyinFromUser(convo, user_data, user);
-
-                //return true;
             }
         }
     ]
@@ -197,19 +182,12 @@ const create_lobby_callback = async (convo, message) => {
         user_data.team_id = message.team.id;
         user_data.team_name = message.team.domain;
         let NEW_PLAYER = true;
-        // #debug ---------------------------------------------------------------
-        // console.log('\n---------- Begin create_lobby_callback ---------\n');
-        // console.log('\n--- {message} ---\n');
-        // console.log(message);
-        // console.log('\n--- {user_data} ---\n');
-        // console.log(user_data);
-        // ----------------------------------------------------------------------
+
         let user = await getPlayerByID(user_data);
 
         if (user) {
             NEW_PLAYER = false;
             convo.say(`Welcome back, <@${user.slack_id}>`);
-
             if (user.isInLobby) {
                 convo.say('It appears that you are already in a game. You cannot create new lobby until you quit the current game. Please try again later.');
                 convo.next();
@@ -217,7 +195,6 @@ const create_lobby_callback = async (convo, message) => {
             }
             convo.next();
         }
-
 
         // .......................................................
         // todo : 						                        ..
@@ -249,15 +226,6 @@ const create_lobby_callback = async (convo, message) => {
             user = await createNewUser(convo, user, user_data);
         }
 
-        let user_set_lobby_name = 'no_name';
-        let user_set_buyin = -1;
-
-        // #debug -------------------------
-        // console.log('\n-------------- poker-commands.js ---------------\n');
-        // console.log('----- {user} ----- \n');
-        // console.log(user);
-        // -------------------------------
-
         /*      Get the lobby name from user       */
         return await getLobbyNameFromUser(convo, user_data, user);
 
@@ -266,6 +234,21 @@ const create_lobby_callback = async (convo, message) => {
         console.log(e);
         return e;
     }
+}
+
+
+// ------- Assign selected message blocks to local const ----------- //
+const showdown = message_blocks.showdown_mockup;
+//-------------------------------------------------------------------//
+const testShowCards = (message, bot) => {
+    bot.sendWebhook({
+        blocks: showdown,
+        channel: message.channel_id,
+    }, function (err, res) {
+        if (err) {
+            console.log(err);
+        }
+    });
 }
 
 module.exports = async (controller) => {
@@ -278,13 +261,6 @@ module.exports = async (controller) => {
                     {
                         pattern: "yes",                                 // if response is yes
                         callback: async (reply, convo) => {             // do this procedure as callback
-                            // #debug --------------------------------
-                            // console.log('\n---------- About to enter create_lobby_callback -----------\n');
-                            // console.log('\n --- {reply} --- \n');
-                            // console.log(reply);
-                            // console.log('\n --- {message} --- \n');
-                            // console.log(message);
-                            //----------------------------------------
                             let res = await create_lobby_callback(convo, reply.raw_message);        // the actual callback function
                             convo.next();
                         }
@@ -303,14 +279,15 @@ module.exports = async (controller) => {
                         }
                     }
                 ]);
-
-            // #debug #################################
-            // console.log('\n\n-------------------[message]\n', message);
-            // ########################################
         });
     });
-}
+    controller.hears(['test cards'], 'direct_message,direct_mention', function (bot, message) {
 
-// module.exports = {
-//     joinPoker
-// }
+        bot.reply(message, 'Here are the cards.');
+        /*      Send card message block    */
+        testShowCards(message, bot);
+
+    });
+
+
+}

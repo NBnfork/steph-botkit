@@ -9,15 +9,9 @@ const {
 const message_blocks = require('./message-blocks/poker-messages');
 // ------- Assign selected message blocks to local const ----------- //
 const showdown = message_blocks.showdown_mockup;
-
 //-------------------------------------------------------------------//
 
 const handleSlash = async (bot, message) => {
-    // #debug --------------------------------------------
-    // console.log("\n\nslash-commands.js / handleSlash (): ----------------------");
-    // console.log(message.command);
-    //----------------------------------------------------
-
     switch (message.command) {
         /*
             Testing purpose. 
