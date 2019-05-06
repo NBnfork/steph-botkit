@@ -44,7 +44,6 @@ const createPlayer = async (data) => {
         // };
         // -------------------------------
         const newPlayer = new player(data);// Constructs a player locally with the passed in data {user_id and user_name}
-        console.log('in createPlayer ' + newPlayer);
         await newPlayer.save(); 					// This pushes the locally created player up to the DB
 
     } catch (e) {
@@ -61,7 +60,7 @@ const createPlayer = async (data) => {
 |
 |	Description:
 |	- Player has joined a lobby 
-|	- Arguments: {user_id, lobby_id, buyin}
+|	- Arguments: {user_id, lobby_id, team_id, buyin}
 |   - Update: bank, wallet, lastLobby, isInLobby
 |   - Does not check if lobby exist
 | 
