@@ -176,5 +176,5 @@ module.exports = {
 	createLobby,
 	updateLobby,
 	deleteLobby,
-	deleteLobbyAll,
+	deleteLobbyAll
 };

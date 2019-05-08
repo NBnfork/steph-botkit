@@ -6,6 +6,11 @@ const {
     deleteLobbyAll
 } = require('./lobby/lobby-router');
 
+const {
+    deletePlayerAll
+
+} = require('./player/player-router');
+
 const message_blocks = require('./message-blocks/poker-messages');
 // ------- Assign selected message blocks to local const ----------- //
 const showdown = message_blocks.showdown_mockup;
@@ -120,12 +125,28 @@ const handleSlash = async (bot, message) => {
             break;
 
         /*
-            deletes all lobbies.
+            deletes all lobbies from DB.
         */
         case '/clear_lob':
+            // #debug ------------------------------------------------
+            console.log('\n... slash-commands/js : Cleared all lobbies from DB---------------\n');
+            //--------------------------------------------------------
             const deletedLobbies = await deleteLobbyAll();
             bot.reply(message, `Debug: All lobbies have been deleted from the database.`);
             break;
+
+        /*
+            deletes all players from DB.
+        */
+        case '/clear_ply':
+            // #debug ------------------------------------------------
+            console.log('\n... slash-commands/js : Cleared all players from DB---------------\n');
+            //--------------------------------------------------------        
+            const deletedPlayers = await deletePlayerAll();
+            bot.reply(message, `Debug: All players have been deleted from the database.`);
+            break;
+
+
 
         default:
             bot.reply(message, 'What command is that');

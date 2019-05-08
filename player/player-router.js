@@ -216,6 +216,24 @@ const getAllPlayerInLobby = async (lobby_id) => {
 }
 //--------------------------------------------------------------------
 
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Delete All Players in DB
+|
+|	Description:
+|	- Returns an array of players
+|																	*/
+const deletePlayerAll = async () => {
+    try {
+        const deletedPlayers = await player.deleteMany({});
+        return deletedPlayers;
+    } catch (e) {
+        // error statements
+        console.log(e);
+        return e;
+    }
+}
+//--------------------------------------------------------------------
+
 module.exports = {
     createPlayer,
     checkIn,
@@ -223,6 +241,8 @@ module.exports = {
     withdraw,
     deposit,
     getOnePlayer,
-    getAllPlayerInLobby
+    getAllPlayerInLobby,
+    deletePlayerAll,
+
 
 };
