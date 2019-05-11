@@ -183,8 +183,9 @@ const getLobbyNameFromUser = (convo, user) => {
 |   All handler functions should be handled by manager.js
 |
 |                                                                                   */
-const create_lobby_callback = async (message) => {
+const create_lobby_callback = async (convo, message) => {
     try {
+        console.log(message);
         /*      Load user data from DB by slack user ID         */
         let user_data = {};
         user_data.slack_id = message.user.id;
@@ -266,7 +267,7 @@ module.exports = async (controller) => {
                 { attachments: create_or_join },                    // buttons available
                 [
                     {
-                        pattern: "yes",                                 // if response is yes
+                        pattern: "create",                                 // if response is yes
                         callback: async (reply, convo) => {             // do this procedure as callback
                             let res = await create_lobby_callback(convo, reply.raw_message);        // the actual callback function
                             convo.next();
