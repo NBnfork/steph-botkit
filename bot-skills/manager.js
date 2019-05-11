@@ -148,31 +148,15 @@ const playerJoinLobby = async (user_data, lobby_id) => {
     if (currPlayers.num_players >= thisLobby.maxPlayers) {
         valid = false;
     }
-
-    // #debug-------------------------------
-    // console.log('\n--------- manager.js -----------');
-    // console.log('\n---- thisPlayer ----\n');
-    // console.log(thisPlayer);
-    //-------------------------------------
     // check-in player to lobby
     if (valid) {
         const updatedPlayer = await checkIn({ slack_id: thisPlayer.slack_id, team_id: thisPlayer.team_id, lobby_id: thisLobby._id, buyin: thisLobby.buyin });
         if (updatedPlayer) {
-            // #debug -----------------------------
-            // currPlayers = await getLobbyPlayers(thisLobby._id);
-            // console.log(`\n------------------\nCheck: ` + updatedPlayer.name + ` is in [\n` + currPlayers.playerList + `]-------------\n`);
-            //-------------------------------------
             const updated_lobby = await getLobbyByID(lobby_id);
-            // #debug-------------------------------
-            // console.log('\n--------- manager.js -> playerJoinLobby() -----------');
-            // console.log('\n---- updated_lobby ----\n');
-            // console.log(updated_lobby);
-            //-------------------------------------
             if (updated_lobby) {
 
                 return updated_lobby;
             }
-
         }
     }
     else {
@@ -185,11 +169,9 @@ const playerJoinLobby = async (user_data, lobby_id) => {
 
 }
 
-
 const getAllLobby = async () => {
     // append all players to each lobby
     // returns all lobby objects
-
 }
 
 const assignChip = async (player_data, amount) => {

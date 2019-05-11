@@ -44,6 +44,31 @@ const getlobbies = async () => {
 //----------------------------------------------------------------------------------
 
 
+/*----------------------------------------------------------------------------------
+|	!! THIS IS ONLY A TEST PURPOSE METHOD !! 
+|	* Unstable results *
+|	[Lobby / Lobby-Router.js] Get Lobby ID by Name
+|
+|	Description:
+|	- Uses Mongoose function <my_model>.findOne() 
+|	
+|
+|	 																				*/
+const getLobbyIdByName = async (lobbyName) => {
+	try {
+		const lobs = await lobby.findOne({ name: lobbyName });
+		// #debug
+		console.log('/n--------------- lobby-router.js -> getLobbyIdByName()-----------\n');
+		console.log(lobs);
+		return lobs._id;
+	} catch (e) {
+		// error statement
+		return e;
+	}
+}
+//----------------------------------------------------------------------------------
+
+
 
 /*------------------------------------------------------------------------------------
 |	[Lobby / Lobby-Router.js] Get One Lobby
@@ -177,4 +202,5 @@ module.exports = {
 	updateLobby,
 	deleteLobby,
 	deleteLobbyAll,
+	getLobbyIdByName
 };

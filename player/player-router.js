@@ -43,8 +43,7 @@ const createPlayer = async (data) => {
         //     name: user_name
         // };
         // -------------------------------
-        const newPlayer = new player(data);// Constructs a player locally with the passed in data {user_id and user_name}
-        console.log('in createPlayer ' + newPlayer);
+        const newPlayer = new player(data);		    // Constructs a player locally with the passed in data {user_id and user_name}
         await newPlayer.save(); 					// This pushes the locally created player up to the DB
 
     } catch (e) {
@@ -218,16 +217,37 @@ const deposit = async (data, chips) => {
 |	- Returns an array of players
 |																	*/
 const getAllPlayerInLobby = async (lobby_id) => {
-    // #debug -----------------------------
-    console.log("\n--------- player-router.js -> getAllPlayerInLobby -----------------\n");
-    console.log('lobby_id is ' + lobby_id);
-    //-----------------------------------
-    const playerList = player.find({ lastLobby: lobby_id, isInLobby: true });
-    // #debug -----------------------------
-    //console.log(playerList);
-    //-----------------------------------
+    // #debug
+    console.log('lobby_id = ' + lobby_id);
+    try {
+        const playerList = await player.find({ lastLobby: lobby_id, isInLobby: true });
+        // #debug ---------------------------------
+        console.log('--- player-router.js -> getAllPlayerInLobby() --- ');
+        console.log(playerList);
+        //------------------------------------------
+        return playerList;
+    } catch (error) {
+        console.log(error);
+    }
 
-    return playerList;
+}
+//--------------------------------------------------------------------
+
+/*--------------------------------------------------------------------
+|	[Player / Player-Router.js] Delete All Players in DB
+|
+|	Description:
+|	- Returns an array of players
+|																	*/
+const deletePlayerAll = async () => {
+    try {
+        const deletedPlayers = await player.deleteMany({});
+        return deletedPlayers;
+    } catch (e) {
+        // error statements
+        console.log(e);
+        return e;
+    }
 }
 //--------------------------------------------------------------------
 
@@ -238,6 +258,8 @@ module.exports = {
     withdraw,
     deposit,
     getOnePlayer,
-    getAllPlayerInLobby
+    getAllPlayerInLobby,
+    deletePlayerAll,
+
 
 };
