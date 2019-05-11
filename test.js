@@ -30,7 +30,7 @@ const bot = controller.spawn({
     incoming_webhook: {
         url: process.env.SLACK_WEBHOOK
     }
-}).startRTM();
+}).start
 holdForStartUp();
 //----------------------------------------
 //for use of random-js
