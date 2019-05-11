@@ -211,8 +211,19 @@ const deposit = async (data, chips) => {
 |	- Returns an array of players
 |																	*/
 const getAllPlayerInLobby = async (lobby_id) => {
-    const playerList = player.find({ lastLobby: lobby_id, isInLobby: true });
-    return playerList;
+    // #debug
+    console.log('lobby_id = ' + lobby_id);
+    try {
+        const playerList = await player.find({ lastLobby: lobby_id, isInLobby: true });
+        // #debug ---------------------------------
+        console.log('--- player-router.js -> getAllPlayerInLobby() --- ');
+        console.log(playerList);
+        //------------------------------------------
+        return playerList;
+    } catch (error) {
+        console.log(error);
+    }
+
 }
 //--------------------------------------------------------------------
 

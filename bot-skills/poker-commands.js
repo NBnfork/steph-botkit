@@ -34,12 +34,12 @@ const create_or_join = [
                 "value": "create",
                 "type": "button",
             },
-            {
-                "name": "join",
-                "text": "Join",
-                "value": "join",
-                "type": "button",
-            },
+            // {
+            //     "name": "join",
+            //     "text": "Join",
+            //     "value": "join",
+            //     "type": "button",
+            // },
             {
                 "name": "no",
                 "text": "No",
@@ -127,7 +127,6 @@ const getLobbyBuyinFromUser = (convo, user) => {
         {
             default: true,
             callback: function (reply, convo) {
-
                 convo.setVar('lobby_buyin', reply.text);
                 // #debug--------------------
                 // console.log('\n--- vars.lobby_name (2) ---\n');
@@ -139,7 +138,6 @@ const getLobbyBuyinFromUser = (convo, user) => {
                 if (user.bank < convo.vars.lobby_buyin) {
                     console.log("\npoker-commands.js->getLobbyBuyinFromUser(): Player overdraft.\n");
                     convo.say('It appears that your bank account do not have enough chips. You have $' + user.bank + ' but this lobby has a $' + convo.vars.lobby_buyin + '.');
-
                     return false;
                 }
                 convo.next();
