@@ -60,7 +60,7 @@ const createPlayer = async (data) => {
 |
 |	Description:
 |	- Player has joined a lobby 
-|	- Arguments: {user_id, lobby_id, buyin}
+|	- Arguments: {user_id, lobby_id, team_id, buyin}
 |   - Update: bank, wallet, lastLobby, isInLobby
 |   - Does not check if lobby exist
 | 

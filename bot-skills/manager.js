@@ -46,7 +46,7 @@ const getPlayerByID = async (player_data) => {
 |	 																	*/
 const lobbyRemovePlayer = async (player_data) => {
     /*      Get player      */
-    const thisPlayer = await getPlayerByID(player_data);
+    var thisPlayer = await getPlayerByID(player_data);
     /*      Check-out Player    */
     if (thisPlayer) {
         thisPlayer = await checkOut(thisPlayer);
