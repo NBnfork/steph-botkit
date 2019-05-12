@@ -131,14 +131,15 @@ const handleSlash = async (bot, message) => {
             }
             else {
                 // There are some lobbies
-                bot.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?`);
                 //make list
                 let lobList = [];
                 all_lobbies.forEach(function(lobby){
-                    lobList += lobby;
+                    lobList += lobby.name;
                 });
                 console.log(`The lobby list to send: ${lobList}`);
                 bot.reply(message, lobList);
+                bot.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?\n ${lobList}`);
+
                 // ...............................
                 // todo : 						..
                 // start a conversation			..
