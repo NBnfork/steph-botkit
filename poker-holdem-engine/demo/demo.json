@@ -1,0 +1,21 @@
+{
+  "mongoUri": "mongodb://slackbot-dev-admin:t3x2sh0ld3m@ds253094.mlab.com:53094/heroku_n3r3vk3d",
+  "tournamentId": "574e653bbebd5a20064d08fb",
+  "players": [{
+    "id": "arale",
+    "name": "Arale",
+    "serviceUrl": "localhost:8089/"
+  }, {
+    "id": "bender",
+    "name": "Bender",
+    "serviceUrl": "localhost:8090/"
+  }, {
+    "id": "marvin",
+    "name": "Marvin",
+    "serviceUrl": "localhost:8091/"
+  }, {
+    "id": "r2d2",
+    "name": "R2D2",
+    "serviceUrl": "localhost:8092/"
+  }]
+}

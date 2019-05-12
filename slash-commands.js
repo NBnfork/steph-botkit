@@ -18,6 +18,8 @@ const {
     deletePlayerAll,
 } = require('./player/player-router');
 
+var currentTunnel = "https://slack-holdem-bot.herokuapp.com"
+
 
 
 const message_blocks = require('./message-blocks/poker-messages');
@@ -53,22 +55,23 @@ const handleSlash = async (bot, message) => {
                 {
                     id: "000001",
                     name: "Stephanie",
-                    serviceUrl: "https://e20c063e.ngrok.io"
+                    serviceUrl: currentTunnel
                 },
                 {
                     id: "000002",
                     name: "Noah",
-                    serviceUrl: "https://e20c063e.ngrok.io"
+                    serviceUrl: currentTunnel
                 },
                 {
                     id: "000003",
                     name: "Brian",
-                    serviceUrl: "https://e20c063e.ngrok.io"
+                    serviceUrl: currentTunnel
                 },
                 {
                     id: "000004",
                     name: "Angry Poker Dude",
-                    serviceUrl: "https://e20c063e.ngrok.io"
+                    serviceUrl: currentTunnel
+
                 },
             ];
 
@@ -250,7 +253,7 @@ const handleSlash = async (bot, message) => {
                                 let P = {
                                     id: player.slack_id,
                                     name: player.name,
-                                    serviceUrl: "https://e20c063e.ngrok.io"
+                                    serviceUrl: currentTunnel
                                 };
                                 players.push(P);
                             }

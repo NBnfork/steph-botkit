@@ -1,27 +1,29 @@
-const Tournament = require("poker-holdem-engine");
+const Tournament = require("./poker-holdem-engine/tournament");
 
 const tournamentID = "slackParty";
+
+const currentTunnel = "https://slack-holdem-bot.herokuapp.com"
 
 const players = [
     {
         id: "001",
         name: "Stephanie",
-        serviceUrl: "https://e20c063e.ngrok.io"
+        serviceUrl: currentTunnel
     },
     {
         id: "002",
         name: "Noah",
-        serviceUrl: "https://e20c063e.ngrok.io"
+        serviceUrl: currentTunnel
     },
     {
         id: "003",
         name: "Brian",
-        serviceUrl: "https://e20c063e.ngrok.io"
+        serviceUrl: currentTunnel
     },
     {
         id: "004",
         name: "Angry Poker Dude",
-        serviceUrl: "https://e20c063e.ngrok.io"
+        serviceUrl: currentTunnel
     },
 ];
 
@@ -46,7 +48,7 @@ process.on("message", (msg) => {
 
     switch (msg.topic) {
         case "create":
-            console.log("Got 'create'! ,, creating...")
+            console.log("Got 'create'! ,, creating...");
             //const startGame = () => {
             const t = new Tournament(tournamentID, players, tournamentSettings, { autoStart: true, });
             //console.log('In create, ', bot);
@@ -59,6 +61,6 @@ process.on("message", (msg) => {
             });
             break;
         default:
-            console.log(`Logging! [${msg.topic}] ----- ${msg.message}...`)
+            console.log(`Logging! [${msg.topic}] ----- ${msg.message}...`);
     }
 });
