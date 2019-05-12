@@ -131,6 +131,28 @@ const createLobby = async (data) => {
 }
 //----------------------------------------------------------------------------------
 
+/*----------------------------------------------------------------------
+|	[Lobby / Lobby-Router.js] addPlayer
+|
+|	Description:
+|	- add player to lobby
+|	- returns lobby with player
+|
+|	 																	*/
+const addPlayer = async (user_id, lobby_name) => {
+	try {
+		const lob_id = getLobbyIdByName(lobby_name);
+		const lob_to_update = getOneLobby(lob_id);
+		lob_to_update.playerList.push(user_id);
+		return updateLobby(lob_to_update);
+	} catch (e) {
+		// error statements
+		console.log(e);
+		return e;
+	}
+}
+//----------------------------------------------------------------------
+
 /*------------------------------------------------------------------------------------
 |	[Lobby / Lobby-Router.js] Edit(Update) a Lobby
 |
@@ -202,5 +224,6 @@ module.exports = {
 	updateLobby,
 	deleteLobby,
 	deleteLobbyAll,
-	getLobbyIdByName
+	getLobbyIdByName,
+	addPlayer
 };

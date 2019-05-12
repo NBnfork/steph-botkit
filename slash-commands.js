@@ -18,7 +18,7 @@ const {
     deletePlayerAll,
 } = require('./player/player-router');
 
-var currentTunnel = "https://slack-holdem-bot.herokuapp.com"
+var currentTunnel = "http://cca94ca6.ngrok.io";
 
 
 
@@ -132,6 +132,12 @@ const handleSlash = async (bot, message) => {
             else {
                 // There are some lobbies
                 bot.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?`);
+                //make list
+                let lobList = [];
+                all_lobbies.forEach(function(lobby){
+                    lobList += lobby;
+                });
+                bot.reply(message, lobList);
                 // ...............................
                 // todo : 						..
                 // start a conversation			..
@@ -162,7 +168,7 @@ const handleSlash = async (bot, message) => {
         case '/join-lobby':
             const lobby_name = message.text;
             const user_id = message.user_id;
-            const thisLobby = addPlayer(user_id, lobby_name);
+            const thisLobby = checkIn(user_id, lobby_name);
             // #debug -------------------------------------
             // console.log(message);
             //---------------------------------------------
