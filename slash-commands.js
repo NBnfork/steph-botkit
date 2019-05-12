@@ -137,6 +137,7 @@ const handleSlash = async (bot, message) => {
                 all_lobbies.forEach(function(lobby){
                     lobList += lobby;
                 });
+                console.log(`The lobby list to send: ${lobList}`);
                 bot.reply(message, lobList);
                 // ...............................
                 // todo : 						..
