@@ -17,7 +17,7 @@ const {
     deletePlayerAll,
 } = require('./player/player-router');
 
-var currentTunnel = "https://slack-holdem-testbot.herokuapp.com/";
+var currentTunnel = "https://slack-holdem-bot.herokuapp.com/";
 
 
 

@@ -2,7 +2,7 @@ const Tournament = require("./poker-holdem-engine/tournament");
 
 const tournamentID = "slackParty";
 
-const currentTunnel = "https://slack-holdem-testbot.herokuapp.com/";
+const currentTunnel = "https://slack-holdem-bot.herokuapp.com/";
 
 const players = [
     {
