@@ -258,7 +258,7 @@ const testShowCards = (message, bot) => {
 }
 
 module.exports = async (controller) => {
-    controller.hears(['poker'], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears(['poker'], 'direct_message, direct_mention', function (bot, message) {
         bot.startConversation(message, function (err, convo) {
             convo.say('Shall we start a game?');
             convo.ask(
@@ -287,7 +287,7 @@ module.exports = async (controller) => {
                 ]);
         });
     });
-    controller.hears(['test cards'], 'direct_message,direct_mention', function (bot, message) {
+    controller.hears(['test cards'], 'direct_message, direct_mention', function (bot, message) {
 
         bot.reply(message, 'Here are the cards.');
         /*      Send card message block    */
