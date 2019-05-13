@@ -248,9 +248,9 @@ const handleSlash = async (bot, message) => {
                         console.log('\n------------ Testing dummy fetch ----------------\n');
 
                         try {
-                            const dummyLobbyID = await getLobbyByName("Test_Lobby_777");
+                            const dummyLobby = await getLobbyByName("Test_Lobby_777");
 
-                            const player_lobby_data = await getAllPlayerInLobby(dummyLobbyID);
+                            const player_lobby_data = await getAllPlayerInLobby(dummyLobby._id);
 
                             let players = [];
                             let N = player_lobby_data.length;
