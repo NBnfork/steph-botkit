@@ -3,10 +3,9 @@ const {
     getOneLobby,
     createLobby,
     addPlayer,
-    deleteLobbyAll,
-    getLobbyByName,
+    deleteLobbyAll
 } = require('./lobby/lobby-router');
-
+const {getLobbyByName} = require('./bot-skills/manager');
 const {
     createPlayer,
     checkIn,
@@ -100,7 +99,7 @@ const handleSlash = async (bot, message) => {
                 dummy_data.lastLobby = dummyLobby._id;
                 dummy_data.wallet = 0;
                 dummy_data.isInLobby = true;
-                dummy = createPlayer(dummy_data);
+                let dummy = createPlayer(dummy_data);
             }
 
             break;
@@ -249,7 +248,7 @@ const handleSlash = async (bot, message) => {
                         console.log('\n------------ Testing dummy fetch ----------------\n');
 
                         try {
-                            const dummyLobbyID = await getLobbyIdByName("Test_Lobby_777");
+                            const dummyLobbyID = await getLobbyByName("Test_Lobby_777");
 
                             const player_lobby_data = await getAllPlayerInLobby(dummyLobbyID);
 
