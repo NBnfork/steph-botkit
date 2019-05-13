@@ -2,7 +2,8 @@ const {
     getlobbies,
     getOneLobby,
     createLobby,
-    deleteLobbyAll
+    deleteLobbyAll,
+    getLobbyIdByName
 } = require('../lobby/lobby-router');
 
 const {
@@ -24,7 +25,16 @@ const getLobbyByID = async (lobby_id) => {
         return null;
     }
 }
-
+const getLobbyByName = async (lobby_name) => {
+    const lobby_id = await getLobbyIdByName(lobby_name);
+    const thisLobby = await getOneLobby(lobby_id);
+    if (thisLobby) {
+        return thisLobby;
+    }
+    else {
+        return null;
+    }
+}
 const getPlayerByID = async (player_data) => {
     const thisPlayer = await getOnePlayer(player_data);
     if (thisPlayer) {
@@ -203,5 +213,7 @@ module.exports = {
     getPlayerByID,
     getPlayerBank,
     assignChip,
-    withdrawChip
+    withdrawChip,
+    getLobbyByName
+
 };

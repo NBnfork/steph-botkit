@@ -4,7 +4,7 @@ const {
     createLobby,
     addPlayer,
     deleteLobbyAll,
-    getLobbyIdByName
+    getLobbyByName,
 } = require('./lobby/lobby-router');
 
 const {
@@ -18,7 +18,7 @@ const {
     deletePlayerAll,
 } = require('./player/player-router');
 
-var currentTunnel = "http://cca94ca6.ngrok.io";
+var currentTunnel = "https://slack-holdem-testbot.herokuapp.com/";
 
 
 
@@ -134,10 +134,9 @@ const handleSlash = async (bot, message) => {
                 //make list
                 let lobList = [];
                 all_lobbies.forEach(function(lobby){
-                    lobList += lobby.name;
+                    lobList += `${lobby.name} \n `;
                 });
                 console.log(`The lobby list to send: ${lobList}`);
-                bot.reply(message, lobList);
                 bot.reply(message, `There are currently ${all_lobbies.length} lobbies available...which one do you want to join?\n ${lobList}`);
 
                 // ...............................
@@ -181,7 +180,7 @@ const handleSlash = async (bot, message) => {
                 Displays lobby name, [cur # players / max ], player1 player2 player3.
         */
         case '/check-lobby':
-            const gotThisLobby = await getOneLobby(message.text);
+            const gotThisLobby = await getLobbyByName(message.text);
             if (gotThisLobby) {
                 const lobby_name = gotThisLobby.name;
                 const cur_p = gotThisLobby.currentPlayers;
